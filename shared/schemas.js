@@ -1,0 +1,17 @@
+import {z} from 'zod';
+import {categories} from './catalog.js';
+const str=(n=200)=>z.string().trim().min(1).max(n);
+const optional=(n=1000)=>z.string().trim().max(n).default('');
+export const id=z.string().regex(/^[a-zA-Z0-9_-]{1,100}$/);
+export const email=z.string().trim().email().max(254).transform(x=>x.toLowerCase());
+export const password=z.string().min(12,'Use at least 12 characters.').max(72);
+export const profile=z.object({name:str(100),companyName:str(150),deliveryRegion:optional(150)}).strict();
+export const register=profile.extend({email,password}).strict();
+export const login=z.object({email,password:z.string().min(1).max(72)}).strict();
+export const address=z.object({label:str(80),name:str(100),companyName:optional(150),line1:str(180),line2:optional(180),city:str(100),state:str(100),postalCode:str(20),country:str(80),phone:str(30)}).strict();
+export const cartLine=z.object({productId:id,packagingType:id,quantity:z.number().int().min(1).max(10000)}).strict();
+export const rfq=z.object({productName:str(200),casNumber:optional(30),amount:z.number().positive().max(1e9),unit:z.enum(['L','kg']),targetPurity:z.number().min(0).max(100),deliveryRegion:str(150),notes:optional(5000),contactName:str(100),contactEmail:email,companyName:str(150),attachmentIds:z.array(id).max(5).default([])}).strict();
+export const quote=z.object({priceCents:z.number().int().positive().max(1000000000),leadTimeDays:z.number().int().min(1).max(365),notes:optional(3000)}).strict();
+export const product=z.object({name:str(150),slug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100),casNumber:z.string().regex(/^\d{2,7}-\d{2}-\d$/),category:z.enum(categories),grade:str(100),purityPercentage:z.number().min(0).max(100),formula:optional(100),description:str(3000),phase:z.enum(['Liquid','Solid']),hazardClass:str(1000),stockStatus:z.enum(['in-stock','low-stock','made-to-order','out-of-stock']),leadTimeDays:z.number().int().min(1).max(365),packagingOptions:z.array(z.object({type:id,label:str(100),amount:z.number().positive().max(1e7),unit:z.enum(['L','kg']),priceCents:z.number().int().positive().max(1e9),stockUnits:z.number().int().min(0).max(1000000)}).strict()).min(1).max(8),discountTiers:z.array(z.object({minimum:z.number().positive(),percent:z.number().min(0).max(40)}).strict()).max(5),imageUrl:optional(1000),sdsUrl:optional(1000),coaUrl:optional(1000),approved:z.boolean(),featured:z.boolean().default(false)}).strict().superRefine((p,ctx)=>{if(new Set(p.packagingOptions.map(x=>x.type)).size!==p.packagingOptions.length)ctx.addIssue({code:'custom',message:'Packaging types must be unique.'});if(p.packagingOptions.some(x=>x.unit!==(p.phase==='Liquid'?'L':'kg')))ctx.addIssue({code:'custom',message:'Liquid packaging uses litres; solid packaging uses kilograms.'});});
+export const checkout=z.object({shippingAddress:address,idempotencyKey:id,orderId:id.optional()}).strict();
+export const orderUpdate=z.object({orderStatus:z.enum(['processing','shipped','delivered']),trackingNumber:optional(150),fulfillmentNotes:optional(3000)}).strict();

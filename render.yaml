@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: valence-api
+    runtime: node
+    buildCommand: npm ci
+    startCommand: npm --workspace server start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22
+      - key: TRUST_PROXY_HOPS
+        value: "1"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: COOKIE_SAME_SITE
+        value: none
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

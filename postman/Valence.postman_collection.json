@@ -1,0 +1,2868 @@
+{
+  "info": {
+    "name": "Valence \u2014 your Atlas acceptance checks",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Import alongside the blank Valence environment. Run core folders 01-06 against YOUR Atlas via Express. Optional folders 07-09 require your own Stripe/Cloudinary/email setup. No service credentials are shipped."
+  },
+  "item": [
+    {
+      "name": "01 \u2014 Public catalog and health",
+      "description": "Read-only checks. baseUrl includes /api; frontendOrigin must match the server.",
+      "item": [
+        {
+          "name": "Database health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/health",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Public configuration",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/config",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search by CAS",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/products?q=67-64-1",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filter category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/products?category=Solvents",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Product detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/products/{{productId}}",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bulk estimate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/estimate",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"packagingType\": \"{{packagingType}}\",\n  \"quantity\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 \u2014 Buyer registration and login",
+      "description": "Set buyerEmail and buyerPassword privately. Use a new test buyer in YOUR Atlas. Registration creates records; reruns should skip registration or use a new email. Tokens are saved only to your selected environment.",
+      "item": [
+        {
+          "name": "Register buyer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Buyer\",\n  \"email\": \"{{buyerEmail}}\",\n  \"password\": \"{{buyerPassword}}\",\n  \"companyName\": \"User acceptance testing\",\n  \"deliveryRegion\": \"Chennai\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const d = pm.response.json();",
+                  "pm.environment.set('buyerToken', d.accessToken);",
+                  "pm.environment.set('accessToken', d.accessToken);",
+                  "pm.environment.set('buyerId', d.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Duplicate email is rejected",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Buyer\",\n  \"email\": \"{{buyerEmail}}\",\n  \"password\": \"{{buyerPassword}}\",\n  \"companyName\": \"User acceptance testing\",\n  \"deliveryRegion\": \"Chennai\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Weak password is rejected",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Buyer\",\n  \"email\": \"{{buyerEmail}}\",\n  \"password\": \"short\",\n  \"companyName\": \"User acceptance testing\",\n  \"deliveryRegion\": \"Chennai\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Empty fields are rejected",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Wrong password is rejected",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{buyerEmail}}\",\n  \"password\": \"not-the-correct-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login buyer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{buyerEmail}}\",\n  \"password\": \"{{buyerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const d = pm.response.json();",
+                  "pm.environment.set('buyerToken', d.accessToken);",
+                  "pm.environment.set('accessToken', d.accessToken);",
+                  "pm.environment.set('buyerId', d.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh buyer \u2014 cookie jar handles rotation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/refresh",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const d = pm.response.json();",
+                  "pm.environment.set('buyerToken', d.accessToken);",
+                  "pm.environment.set('accessToken', d.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read my profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/me",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buyer cannot read admin data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/metrics",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 \u2014 Cart and addresses",
+      "description": "Mutates your buyer records. Requires an in-stock packaging option. Unapproved products can enter cart but cannot be purchased.",
+      "item": [
+        {
+          "name": "Read cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/cart",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add cart line",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/cart/items",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"packagingType\": \"{{packagingType}}\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/cart/items",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"packagingType\": \"{{packagingType}}\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject price tampering",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/cart/items",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"packagingType\": \"{{packagingType}}\",\n  \"quantity\": 1,\n  \"priceCents\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Save delivery address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/addresses",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Test delivery\",\n  \"name\": \"Postman Buyer\",\n  \"companyName\": \"User acceptance testing\",\n  \"line1\": \"123 Test Street\",\n  \"line2\": \"\",\n  \"city\": \"Chennai\",\n  \"state\": \"Tamil Nadu\",\n  \"postalCode\": \"600001\",\n  \"country\": \"India\",\n  \"phone\": \"9000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const d = pm.response.json();",
+                  "pm.environment.set('addressId', d.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List addresses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/addresses",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 \u2014 Public submissions and buyer RFQ",
+      "description": "Run before staff checks. Guests can submit RFQs without accounts; attachments require login. These records should appear in staff queues after admin login.",
+      "item": [
+        {
+          "name": "Guest RFQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/rfqs",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Acetone\",\n  \"casNumber\": \"67-64-1\",\n  \"amount\": 5000,\n  \"unit\": \"L\",\n  \"targetPurity\": 99.5,\n  \"deliveryRegion\": \"Chennai\",\n  \"notes\": \"Postman acceptance: five IBCs, quote required.\",\n  \"contactName\": \"Postman Buyer\",\n  \"contactEmail\": \"{{buyerEmail}}\",\n  \"companyName\": \"User acceptance testing\",\n  \"attachmentIds\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const d = pm.response.json();",
+                  "pm.environment.set('guestRfqId', d.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buyer RFQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/rfqs",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Acetone\",\n  \"casNumber\": \"67-64-1\",\n  \"amount\": 5000,\n  \"unit\": \"L\",\n  \"targetPurity\": 99.5,\n  \"deliveryRegion\": \"Chennai\",\n  \"notes\": \"Postman acceptance: five IBCs, quote required.\",\n  \"contactName\": \"Postman Buyer\",\n  \"contactEmail\": \"{{buyerEmail}}\",\n  \"companyName\": \"User acceptance testing\",\n  \"attachmentIds\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const d = pm.response.json();",
+                  "pm.environment.set('rfqId', d.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Contact sales as guest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/contact",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Buyer\",\n  \"email\": \"{{buyerEmail}}\",\n  \"companyName\": \"User acceptance testing\",\n  \"message\": \"Postman acceptance: please contact us about chemical supply.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const d = pm.response.json();",
+                  "pm.environment.set('contactId', d.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buyer RFQ history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/rfqs",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buyer RFQ detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/rfqs/{{rfqId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 \u2014 Staff login, visibility and quote",
+      "description": "Use YOUR seeded admin email/password. Login replaces the refresh cookie in the shared cookie jar. Run buyer cookie tests before this group; bearer buyerToken remains distinct.",
+      "item": [
+        {
+          "name": "Admin password login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const d = pm.response.json();",
+                  "pm.environment.set('adminToken', d.accessToken);",
+                  "pm.environment.set('accessToken', d.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Overview metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/metrics",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "All RFQs include the guest submission",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/rfqs",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Guest RFQ appears', () => pm.expect(pm.response.json().some(r => r.id === pm.environment.get('guestRfqId'))).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Guest RFQ detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/rfqs/{{guestRfqId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mark guest RFQ under review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/rfqs/{{guestRfqId}}/status",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"under-review\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Quote guest RFQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/rfqs/{{guestRfqId}}/quote",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priceCents\": 950000,\n  \"leadTimeDays\": 7,\n  \"notes\": \"Postman acceptance quote; freight included.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Decline guest RFQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/rfqs/{{guestRfqId}}/status",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"declined\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Quote buyer RFQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/rfqs/{{rfqId}}/quote",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priceCents\": 950000,\n  \"leadTimeDays\": 7,\n  \"notes\": \"Postman acceptance quote.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sales enquiries include contact form",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/contacts",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Contact appears', () => pm.expect(pm.response.json().some(r => r.id === pm.environment.get('contactId'))).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "All orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/orders",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buyer accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/buyers",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buyer history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/buyers/{{buyerId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Staff catalog",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/products",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Set sales enquiry contacted",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/admin/contacts/{{contactId}}",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"contacted\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status saved', () => pm.expect(pm.response.json().status).to.eql('contacted'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Set sales enquiry closed",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/admin/contacts/{{contactId}}",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"closed\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status saved', () => pm.expect(pm.response.json().status).to.eql('closed'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject invalid enquiry status",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/admin/contacts/{{contactId}}",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"deleted\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buyer cannot edit enquiries",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/admin/contacts/{{contactId}}",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"new\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 \u2014 Quote acceptance",
+      "description": "Run after the staff quote. Uses buyerToken, not the admin cookie. Converts the quote into an unpaid order; repeat acceptance should return the same order.",
+      "item": [
+        {
+          "name": "Accept buyer quote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/rfqs/{{rfqId}}/respond",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"accepted\",\n  \"shippingAddress\": {\n    \"label\": \"Test delivery\",\n    \"name\": \"Postman Buyer\",\n    \"companyName\": \"User acceptance testing\",\n    \"line1\": \"123 Test Street\",\n    \"line2\": \"\",\n    \"city\": \"Chennai\",\n    \"state\": \"Tamil Nadu\",\n    \"postalCode\": \"600001\",\n    \"country\": \"India\",\n    \"phone\": \"9000000000\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const d = pm.response.json();",
+                  "pm.environment.set('orderId', d.order.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inspect accepted order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/orders/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buyer order history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/orders",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Log back in as buyer before logout check",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{buyerEmail}}\", \"password\": \"{{buyerPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "if(pm.response.code===200)pm.environment.set('buyerToken',pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Core buyer logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/logout",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Revoked buyer token is rejected",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/me",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 \u2014 OPTIONAL Stripe checkout and fulfillment",
+      "description": "Run individually only after YOU connect Stripe TEST mode and approve the catalog. Do not run blindly as part of the entire collection. Complete checkout in a browser and wait for the signed Stripe webhook before fulfillment. Prices here are test-only; no service is simulated.",
+      "item": [
+        {
+          "name": "Create checkout for accepted quote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/checkout",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": {\n    \"label\": \"Test delivery\",\n    \"name\": \"Postman Buyer\",\n    \"companyName\": \"User acceptance testing\",\n    \"line1\": \"123 Test Street\",\n    \"line2\": \"\",\n    \"city\": \"Chennai\",\n    \"state\": \"Tamil Nadu\",\n    \"postalCode\": \"600001\",\n    \"country\": \"India\",\n    \"phone\": \"9000000000\"\n  },\n  \"idempotencyKey\": \"{{$guid}}\",\n  \"orderId\": \"{{orderId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const d = pm.response.json();",
+                  "pm.environment.set('checkoutUrl', d.checkoutUrl);",
+                  "pm.environment.set('orderId', d.order.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inspect payment after webhook",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/orders/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Process a paid order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/orders/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderStatus\": \"processing\",\n  \"trackingNumber\": \"\",\n  \"fulfillmentNotes\": \"Acceptance test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ship processed order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/orders/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderStatus\": \"shipped\",\n  \"trackingNumber\": \"ACCEPTANCE-TEST\",\n  \"fulfillmentNotes\": \"Acceptance test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mark shipped order delivered",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/orders/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderStatus\": \"delivered\",\n  \"trackingNumber\": \"ACCEPTANCE-TEST\",\n  \"fulfillmentNotes\": \"Acceptance test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 \u2014 OPTIONAL files",
+      "description": "Requires your Cloudinary credentials. Select your own PDF in the file field. Requests upload actual bytes to your account.",
+      "item": [
+        {
+          "name": "Upload buyer PDF attachment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/uploads",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "kind",
+                  "value": "attachment",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const d = pm.response.json();",
+                  "pm.environment.set('fileId', d.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Download own attachment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/files/{{fileId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "09 \u2014 OPTIONAL password reset and logout",
+      "description": "Requires YOUR working email provider to obtain a real resetToken. No reset token is returned in production. Set newPassword privately. This group revokes sessions. Run one request at a time.",
+      "item": [
+        {
+          "name": "Request password reset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/forgot-password",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{buyerEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject invalid reset token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/reset-password",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"not-a-valid-token\",\n  \"password\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reset using token received by email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/reset-password",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject reset token reuse",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/reset-password",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login with new password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{buyerEmail}}\",\n  \"password\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const d = pm.response.json();",
+                  "pm.environment.set('buyerToken', d.accessToken);",
+                  "pm.environment.set('accessToken', d.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout current cookie session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/logout",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Old access token fails after logout",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Valence-Client",
+                "value": "web"
+              },
+              {
+                "key": "Origin",
+                "value": "{{frontendOrigin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/me",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{buyerToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected HTTP 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
