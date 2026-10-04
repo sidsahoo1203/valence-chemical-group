@@ -2,6 +2,10 @@ services:
   - type: web
     name: valence-api
     runtime: node
+    name: valence-api
+    runtime: node
+    plan: free
+    region: singapore
     buildCommand: npm ci
     startCommand: npm --workspace server start
     healthCheckPath: /api/health
